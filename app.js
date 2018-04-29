@@ -9,8 +9,12 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var wiki = require("./routes/wiki.js");
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
+var compression = require('compression');
+var helmet = require("helmet");
 
 var app = express();
+
+app.use(helmet());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,7 +22,8 @@ app.set('view engine', 'pug');
 
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB = "mongodb://abhishek:12345@ds127988.mlab.com:27988/locallibrary";
+var mongoDB =
+  process.env.MONGODB_URI || "mongodb://abhishek:12345@ds127988.mlab.com:27988/locallibrary";
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
@@ -30,6 +35,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(compression()); //Compress all routes
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
